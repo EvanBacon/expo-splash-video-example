@@ -1,13 +1,14 @@
 # Splash Screen Example
 
-<p>
+
+<a href="https://snack.expo.dev/@bacon/splash-video-demo">
   <!-- iOS -->
-  <img alt="Supports Expo iOS" longdesc="Supports Expo iOS" src="https://img.shields.io/badge/iOS-4630EB.svg?style=flat-square&logo=APPLE&labelColor=999999&logoColor=fff" />
-  <!-- Android -->
-  <img alt="Supports Expo Android" longdesc="Supports Expo Android" src="https://img.shields.io/badge/Android-4630EB.svg?style=flat-square&logo=ANDROID&labelColor=A4C639&logoColor=fff" />
-</p>
+  <img alt="Run in Expo Snack" longdesc="Run in Expo Snack" src="https://img.shields.io/badge/Run%20in%20Expo%20Snack-fff.svg?style=for-the-badge&logo=EXPO&labelColor=000&logoColor=fff" />
+</a>
 
+Recreates the animated splash screen effect from the [WWDC 2023 finalist](https://developer.apple.com/design/awards/) "Universe - website builder".
 
+## Demo Video
 
 https://github.com/EvanBacon/expo-splash-video-example/assets/9664363/a01f0f97-1629-4879-853f-8fb9a960c33b
 
