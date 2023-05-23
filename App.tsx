@@ -1,16 +1,46 @@
-import { Asset } from "expo-asset";
+import { AVPlaybackStatus, ResizeMode, Video } from "expo-av";
 import Constants from "expo-constants";
 import * as SplashScreen from "expo-splash-screen";
-import * as Updates from "expo-updates";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Animated,
-  Button,
-  Platform,
   StyleSheet,
   Text,
+  useWindowDimensions,
   View,
 } from "react-native";
+
+export function SplashVideo({ onLoaded, onFinish }) {
+  const video = useRef(null);
+  const [lastStatus, setStatus] = useState<AVPlaybackStatus>({});
+  const { width } = useWindowDimensions();
+  const isTablet = width >= 768;
+  return (
+    <Video
+      ref={video}
+      style={StyleSheet.absoluteFill}
+      source={
+        isTablet
+          ? require("./assets/splash-tablet.mp4")
+          : require("./assets/splash.mp4")
+      }
+      shouldPlay={!(lastStatus.isLoaded && lastStatus.didJustFinish)}
+      isLooping={false}
+      resizeMode={ResizeMode.COVER}
+      onPlaybackStatusUpdate={(status) => {
+        if (status.isLoaded) {
+          if (lastStatus.isLoaded !== status.isLoaded) {
+            onLoaded();
+          }
+          if (status.didJustFinish) {
+            onFinish();
+          }
+        }
+        setStatus(() => status);
+      }}
+    />
+  );
+}
 
 // Instruct SplashScreen not to hide yet, we want to do this manually
 SplashScreen.preventAutoHideAsync().catch(() => {
@@ -19,45 +49,27 @@ SplashScreen.preventAutoHideAsync().catch(() => {
 
 export default function App() {
   return (
-    <AnimatedAppLoader image={{ uri: Constants.manifest.splash.image }}>
+    <AnimatedSplashScreen>
       <MainScreen />
-    </AnimatedAppLoader>
+    </AnimatedSplashScreen>
   );
 }
 
-function AnimatedAppLoader({ children, image }) {
-  const [isSplashReady, setSplashReady] = useState(false);
-
-  useEffect(() => {
-    async function prepare() {
-      await Asset.fromURI(image.uri).downloadAsync();
-      setSplashReady(true);
-    }
-
-    prepare();
-  }, [image]);
-
-  if (!isSplashReady) {
-    return null;
-  }
-
-  return <AnimatedSplashScreen image={image}>{children}</AnimatedSplashScreen>;
-}
-
-function AnimatedSplashScreen({ children, image }) {
+function AnimatedSplashScreen({ children }) {
   const animation = useMemo(() => new Animated.Value(1), []);
   const [isAppReady, setAppReady] = useState(false);
+  const [isSplashVideoComplete, setSplashVideoComplete] = useState(false);
   const [isSplashAnimationComplete, setAnimationComplete] = useState(false);
 
   useEffect(() => {
-    if (isAppReady) {
+    if (isAppReady && isSplashVideoComplete) {
       Animated.timing(animation, {
         toValue: 0,
-        duration: 1000,
+        duration: 500,
         useNativeDriver: true,
       }).start(() => setAnimationComplete(true));
     }
-  }, [isAppReady]);
+  }, [isAppReady, isSplashVideoComplete]);
 
   const onImageLoaded = useCallback(async () => {
     try {
@@ -71,6 +83,16 @@ function AnimatedSplashScreen({ children, image }) {
     }
   }, []);
 
+  const videoElement = useMemo(() => {
+    return (
+      <SplashVideo
+        onLoaded={onImageLoaded}
+        onFinish={() => {
+          setSplashVideoComplete(true);
+        }}
+      />
+    );
+  }, [onImageLoaded, setSplashVideoComplete]);
   return (
     <View style={{ flex: 1 }}>
       {isAppReady && children}
@@ -85,21 +107,7 @@ function AnimatedSplashScreen({ children, image }) {
             },
           ]}
         >
-          <Animated.Image
-            style={{
-              width: "100%",
-              height: "100%",
-              resizeMode: Constants.manifest.splash.resizeMode || "contain",
-              transform: [
-                {
-                  scale: animation,
-                },
-              ],
-            }}
-            source={image}
-            onLoadEnd={onImageLoaded}
-            fadeDuration={0}
-          />
+          {videoElement}
         </Animated.View>
       )}
     </View>
@@ -107,19 +115,11 @@ function AnimatedSplashScreen({ children, image }) {
 }
 
 function MainScreen() {
-  const onReloadPress = useCallback(() => {
-    if (Platform.OS === "web") {
-      location.reload();
-    } else {
-      Updates.reloadAsync();
-    }
-  }, []);
-
   return (
     <View
       style={{
         flex: 1,
-        backgroundColor: "plum",
+        backgroundColor: "white",
         alignItems: "center",
         justifyContent: "center",
       }}
@@ -132,9 +132,8 @@ function MainScreen() {
           fontWeight: "bold",
         }}
       >
-        Pretty Cool!
+        Hello Universe!
       </Text>
-      <Button title="Run Again" onPress={onReloadPress} />
     </View>
   );
 }
