@@ -65,7 +65,7 @@ function AnimatedSplashScreen({ children }) {
     if (isAppReady && isSplashVideoComplete) {
       Animated.timing(animation, {
         toValue: 0,
-        duration: 500,
+        duration: 200,
         useNativeDriver: true,
       }).start(() => setAnimationComplete(true));
     }

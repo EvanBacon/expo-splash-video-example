@@ -1,6 +1,20 @@
 {
   "expo": {
     "name": "universe-splash",
-    "slug": "universe-splash"
+    "slug": "universe-splash",
+    "backgroundColor": "#000",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "cover",
+      "backgroundColor": "#000"
+    },
+    "ios": {
+      "splash": {
+        "image": "./assets/splash.png",
+        "resizeMode": "cover",
+        "backgroundColor": "#000",
+        "tabletImage": "./assets/splash-tablet.png"
+      }
+    }
   }
 }
